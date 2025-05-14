@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Cotización{% endblock %}
+{% block content %}
+<div class="container py-3">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-7">
+      <h2 class="mb-4">Cotización</h2>
+      <form id="form-cotizacion" class="row g-3 mb-3" method="post" action="/cotizacion">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Precio</label>
+          <input type="number" step="0.01" min="0" class="form-control" name="precio" id="precio" required>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label">Cantidad</label>
+          <input type="number" min="1" class="form-control" name="cantidad" id="cantidad" value="1" required>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label">Tipo de financiación</label>
+          <select class="form-select" name="tipo" id="tipo">
+            {% for tipo in tipos %}
+              <option value="{{ tipo }}" {% if tipo==tipo_sel %}selected{% endif %}>{{ tipo }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 d-flex gap-2 justify-content-end">
+          <button type="submit" class="btn btn-primary">Calcular</button>
+        </div>
+      </form>
+      <div class="mb-2 d-flex gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="deshacerCotizacion()">Deshacer</button>
+        <button type="button" class="btn btn-success btn-sm" onclick="copiarCotizacion()">Copiar mensaje</button>
+      </div>
+      <textarea id="resultado-cotizacion" class="form-control" rows="10" style="resize:vertical; min-height:180px;">{{ mensaje or '' }}</textarea>
+    </div>
+  </div>
+</div>
+<script>
+const textareaCot = document.getElementById('resultado-cotizacion');
+let historialCot = [];
+let bloqueaEventoCot = false;
+if (textareaCot) {
+  historialCot.push(textareaCot.value);
+  textareaCot.addEventListener('input', function() {
+    if (!bloqueaEventoCot) {
+      historialCot.push(this.value);
+    }
+  });
+}
+function deshacerCotizacion() {
+  if (textareaCot && historialCot.length > 1) {
+    bloqueaEventoCot = true;
+    historialCot.pop();
+    textareaCot.value = historialCot[historialCot.length - 1];
+    bloqueaEventoCot = false;
+  }
+}
+function copiarCotizacion() {
+  if (textareaCot) {
+    navigator.clipboard.writeText(textareaCot.value)
+      .then(() => alert('Mensaje copiado'));
+  }
+}
+</script>
+{% endblock %} 

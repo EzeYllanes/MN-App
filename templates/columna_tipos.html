@@ -1,0 +1,44 @@
+<h5 id="tipos-anchor">Tipos de Financiación</h5>
+{% if tipo_sel %}
+<nav aria-label="breadcrumb" class="mb-2">
+  <ol class="breadcrumb bg-dark text-light px-3 py-2 mb-2">
+    <li class="breadcrumb-item text-light active" aria-current="page">{{ tipo_sel }}</li>
+  </ol>
+</nav>
+{% endif %}
+{% if tipos %}
+<ul class="list-group mb-2">
+  {% for tipo in tipos %}
+    <li class="list-group-item d-flex align-items-center gap-2 {% if tipo==tipo_sel %}active{% endif %}"
+        style="cursor:pointer;"
+        onclick="seleccionarTipo('{{ tipo }}');">
+      <span class="flex-grow-1 text-reset {% if tipo==tipo_sel %}fw-bold{% endif %}">{{ tipo }}</span>
+      <button class="btn btn-outline-light btn-sm py-0 px-2" style="min-width:28px" onclick="event.stopPropagation(); moverTipoAjax('{{ tipo }}', -1);" {% if loop.first %}disabled{% endif %} title="Subir">↑</button>
+      <button class="btn btn-outline-light btn-sm py-0 px-2" style="min-width:28px" onclick="event.stopPropagation(); moverTipoAjax('{{ tipo }}', 1);" {% if loop.last %}disabled{% endif %} title="Bajar">↓</button>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <div class="text-muted">Sin tipos de financiación</div>
+{% endif %}
+<form method="post" action="/configuracion/agregar_tipo" class="d-flex gap-2 mb-2 align-items-end" onsubmit="return agregarTipoAjax(this);">
+  <div class="w-100">
+    <label class="form-label mb-0">Nombre</label>
+    <input type="text" name="nuevo_tipo" class="form-control form-control-sm" placeholder="Nuevo tipo" required>
+  </div>
+  <button class="btn btn-success btn-sm" type="submit">Agregar</button>
+</form>
+{% if tipo_sel %}
+<form method="post" action="/configuracion/editar_tipo" class="d-flex gap-2 mb-2 align-items-end bg-secondary bg-opacity-10 p-2 rounded" onsubmit="return editarTipoAjax(this);">
+  <input type="hidden" name="tipo_actual" value="{{ tipo_sel }}">
+  <div class="w-100">
+    <label class="form-label mb-0">Editar nombre</label>
+    <input type="text" name="tipo_nuevo" class="form-control form-control-sm" value="{{ tipo_sel }}" required>
+  </div>
+  <button class="btn btn-warning btn-sm" type="submit">Editar</button>
+</form>
+<form method="post" action="/configuracion/eliminar_tipo" onsubmit="return eliminarTipoAjax(this);">
+  <input type="hidden" name="tipo" value="{{ tipo_sel }}">
+  <button class="btn btn-danger btn-sm w-100" type="submit">Eliminar</button>
+</form>
+{% endif %} 

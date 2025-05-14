@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Buscador de Neumáticos{% endblock %}
+{% block content %}
+<div class="container py-3">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-7">
+      <h2 class="mb-4">Buscador de Neumáticos</h2>
+      <form method="post" action="/buscar" class="row g-3 mb-3">
+        <div class="col-12 col-md-8">
+          <input type="text" name="medida" class="form-control" placeholder="Ingrese la medida (ej: 165/70 R13)" required>
+        </div>
+        <div class="col-12 col-md-4 d-flex align-items-end">
+          <button class="btn btn-primary w-100" type="submit">Buscar</button>
+        </div>
+      </form>
+      {% if mensaje %}
+      <div class="mb-2 d-flex gap-2">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="deshacerBusqueda()">Deshacer</button>
+        <button type="button" class="btn btn-success btn-sm" onclick="copiarBusqueda()">Copiar mensaje</button>
+      </div>
+      <textarea id="resultado-busqueda" class="form-control" rows="10" style="resize:vertical; min-height:180px;">{{ mensaje }}</textarea>
+      {% endif %}
+      {% if productos %}
+        <ul class="list-group mt-4 mb-4">
+          {% for p in productos %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ p['Nombre'] }}
+              <span class="badge bg-success">${{ '%.0f'|format(p['Precio']) }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script>
+const textareaBus = document.getElementById('resultado-busqueda');
+let historialBus = [];
+let bloqueaEventoBus = false;
+if (textareaBus) {
+  historialBus.push(textareaBus.value);
+  textareaBus.addEventListener('input', function() {
+    if (!bloqueaEventoBus) {
+      historialBus.push(this.value);
+    }
+  });
+}
+function deshacerBusqueda() {
+  if (textareaBus && historialBus.length > 1) {
+    bloqueaEventoBus = true;
+    historialBus.pop();
+    textareaBus.value = historialBus[historialBus.length - 1];
+    bloqueaEventoBus = false;
+  }
+}
+function copiarBusqueda() {
+  if (textareaBus) {
+    navigator.clipboard.writeText(textareaBus.value)
+      .then(() => alert('Mensaje copiado'));
+  }
+}
+</script>
+{% endblock %} 

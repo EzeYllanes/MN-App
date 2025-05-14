@@ -1,0 +1,90 @@
+{
+    "tipos_financiacion": {
+        "MN": {
+            "nombre": "MN",
+            "tarjetas": {
+                "Tarjeta Bancaria": {
+                    "planes": [
+                        {
+                            "nombre": "6 Cuotas",
+                            "cuotas": "6",
+                            "interes": 18.6,
+                            "usar_nombre": false
+                        },
+                        {
+                            "nombre": "3 Cuota Simple",
+                            "cuotas": "3",
+                            "interes": 10.24,
+                            "usar_nombre": false
+                        }
+                    ]
+                },
+                "Naranja X": {
+                    "planes": [
+                        {
+                            "cuotas": "3",
+                            "nombre": "Plan Z",
+                            "usar_nombre": true,
+                            "interes": 12.25
+                        },
+                        {
+                            "cuotas": "5",
+                            "nombre": "",
+                            "usar_nombre": false,
+                            "interes": 18.67
+                        },
+                        {
+                            "cuotas": "8",
+                            "nombre": "",
+                            "usar_nombre": false,
+                            "interes": 27.85
+                        }
+                    ]
+                }
+            }
+        },
+        "Joyla": {
+            "nombre": "Joyla",
+            "tarjetas": {
+                "Tarjeta Bancaria": {
+                    "planes": [
+                        {
+                            "nombre": "3 Cuotas",
+                            "cuotas": "3",
+                            "interes": 6.75,
+                            "usar_nombre": false
+                        },
+                        {
+                            "nombre": "6 Cuotas",
+                            "cuotas": "6",
+                            "interes": 15.61,
+                            "usar_nombre": false
+                        }
+                    ]
+                },
+                "Naranja X": {
+                    "planes": [
+                        {
+                            "cuotas": "3",
+                            "nombre": "Plan Z",
+                            "usar_nombre": true,
+                            "interes": 6.0
+                        },
+                        {
+                            "nombre": "6 Cuotas",
+                            "cuotas": "6",
+                            "interes": 10.0,
+                            "usar_nombre": false
+                        },
+                        {
+                            "nombre": "9 Cuotas",
+                            "cuotas": "9",
+                            "interes": 17.0,
+                            "usar_nombre": false
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,106 @@
+<h5 id="planes-anchor">Planes</h5>
+{% if tipo_sel or tarjeta_sel or (plan_idx is not none and planes and planes|length > plan_idx) %}
+<nav aria-label="breadcrumb" class="mb-2">
+  <ol class="breadcrumb bg-dark text-light px-3 py-2 mb-2">
+    {% if tipo_sel %}<li class="breadcrumb-item text-light">{{ tipo_sel }}</li>{% endif %}
+    {% if tarjeta_sel %}<li class="breadcrumb-item text-light">{{ tarjeta_sel }}</li>{% endif %}
+    {% if plan_idx is not none and planes and planes|length > plan_idx %}
+      {% set plan = planes[plan_idx] %}
+      <li class="breadcrumb-item text-light active" aria-current="page">{% if plan.nombre %}{{ plan.nombre }}{% else %}{{ plan.cuotas }} cuotas{% endif %}</li>
+    {% endif %}
+  </ol>
+</nav>
+{% endif %}
+{% if planes is not none and planes|length > 0 %}
+<div class="table-responsive mb-2">
+  <table class="table table-dark table-striped table-bordered align-middle mb-0">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Nombre</th>
+        <th>Cuotas</th>
+        <th>Interés (%)</th>
+        <th>Usar nombre</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for plan in planes %}
+      <tr {% if loop.index0 == plan_idx %}class="table-primary"{% endif %}>
+        <td>
+          <button type="button" class="btn btn-outline-light btn-sm" onclick='seleccionarPlan("{{ tipo_sel }}", "{{ tarjeta_sel }}", {{ loop.index0 }});'>Seleccionar</button>
+        </td>
+        <td>{{ plan.nombre }}</td>
+        <td>{{ plan.cuotas }}</td>
+        <td>{{ plan.interes }}</td>
+        <td>{% if plan.usar_nombre %}✔️{% else %}❌{% endif %}</td>
+        <td class="d-flex gap-1">
+          <button class="btn btn-outline-light btn-sm py-0 px-2" style="min-width:28px" onclick="moverPlanAjax('{{ tipo_sel }}', '{{ tarjeta_sel }}', {{ loop.index0 }}, -1); event.stopPropagation();" {% if loop.first %}disabled{% endif %} title="Subir">↑</button>
+          <button class="btn btn-outline-light btn-sm py-0 px-2" style="min-width:28px" onclick="moverPlanAjax('{{ tipo_sel }}', '{{ tarjeta_sel }}', {{ loop.index0 }}, 1); event.stopPropagation();" {% if loop.last %}disabled{% endif %} title="Bajar">↓</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div class="text-muted mb-2">Sin planes</div>
+{% endif %}
+{% if planes is not none and plan_idx is not none and planes|length > plan_idx %}
+{% set plan_sel = planes[plan_idx] %}
+<form method="post" action="/configuracion/editar_plan" class="row g-2 align-items-end mb-2" onsubmit="return editarPlanAjax(this);">
+  <input type="hidden" name="tipo" value="{{ tipo_sel }}">
+  <input type="hidden" name="tarjeta" value="{{ tarjeta_sel }}">
+  <input type="hidden" name="plan_idx" value="{{ plan_idx }}">
+  <div class="col-md-4">
+    <label class="form-label">Nombre</label>
+    <input type="text" name="nombre" class="form-control form-control-sm" value="{{ plan_sel.nombre }}">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Cuotas</label>
+    <input type="number" name="cuotas" class="form-control form-control-sm" value="{{ plan_sel.cuotas }}" min="1" required>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Interés (%)</label>
+    <input type="number" name="interes" class="form-control form-control-sm" value="{{ plan_sel.interes }}" step="0.01" required>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label">Usar nombre</label>
+    <input type="checkbox" name="usar_nombre" value="1" {% if plan_sel.usar_nombre %}checked{% endif %}>
+  </div>
+  <div class="col-md-2 d-flex gap-2">
+    <button class="btn btn-warning btn-sm w-100" type="submit">Editar</button>
+    <button class="btn btn-danger btn-sm w-100" type="button" onclick='eliminarPlanAjax("{{ tipo_sel }}", "{{ tarjeta_sel }}", {{ plan_idx }});'>Eliminar</button>
+  </div>
+</form>
+{% endif %}
+{% if tarjeta_sel %}
+<form method="post" action="/configuracion/agregar_plan" class="row g-2 align-items-end" onsubmit="return agregarPlanAjax(this);">
+  <input type="hidden" name="tipo" value="{{ tipo_sel }}">
+  <input type="hidden" name="tarjeta" value="{{ tarjeta_sel }}">
+  <div class="col-md-4">
+    <label class="form-label mb-0">Nombre</label>
+    <input type="text" name="nombre" class="form-control form-control-sm" placeholder="Nombre (opcional)">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label mb-0">Cuotas</label>
+    <input type="number" name="cuotas" class="form-control form-control-sm" placeholder="Cuotas" min="1" required>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label mb-0">Interés (%)</label>
+    <input type="number" name="interes" class="form-control form-control-sm" placeholder="Interés (%)" step="0.01" required>
+  </div>
+  <div class="col-md-2">
+    <input type="checkbox" name="usar_nombre" value="1"> Usar nombre
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-success btn-sm w-100" type="submit">Agregar</button>
+  </div>
+</form>
+{% endif %}
+<style>
+.table-primary {
+  background-color: #495057 !important;
+  color: #fff;
+}
+</style> 

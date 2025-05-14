@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Configuración{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- Columna de Tipos -->
+    <div class="col-12 col-md-2 col-lg-2 border-end" id="columna-tipos">
+      {% include 'columna_tipos.html' %}
+    </div>
+    <!-- Columna de Tarjetas -->
+    <div class="col-12 col-md-3 col-lg-3 border-end" id="columna-tarjetas">
+      {% with tipo_sel=tipo_sel, tarjetas=(config['tipos_financiacion'][tipo_sel]['tarjetas'].keys() if tipo_sel else []), tarjeta_sel=tarjeta_sel %}
+        {% include 'columna_tarjetas.html' %}
+      {% endwith %}
+    </div>
+    <!-- Columna de Planes -->
+    <div class="col-12 col-md-7 col-lg-7" id="columna-planes">
+      {% with tipo_sel=tipo_sel, tarjeta_sel=tarjeta_sel, planes=(config['tipos_financiacion'][tipo_sel]['tarjetas'][tarjeta_sel]['planes'] if tipo_sel and tarjeta_sel else []), plan_idx=plan_idx %}
+        {% include 'columna_planes.html' %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+<style>
+@media (min-width: 768px) {
+  #columna-tipos { min-width: 180px; max-width: 220px; }
+  #columna-tarjetas { min-width: 220px; max-width: 300px; }
+  #columna-planes { min-width: 350px; }
+}
+.table th, .table td { vertical-align: middle; }
+.btn { white-space: nowrap; font-size: 0.95rem; padding: 0.375rem 0.75rem; }
+.btn-sm { font-size: 0.92rem; padding: 0.25rem 0.7rem; }
+.form-control, .form-label { font-size: 0.97rem; }
+</style>
+{% endblock %}
+<script>
+  // Scroll automático a la sección relevante si hay selección
+  window.onload = function() {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('tarjeta')) {
+      document.getElementById('tarjetas-anchor').scrollIntoView({behavior: 'smooth', block: 'start'});
+    } else if (url.searchParams.get('tipo')) {
+      document.getElementById('tipos-anchor').scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+    if (url.searchParams.get('plan_idx')) {
+      document.getElementById('planes-anchor').scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+  }
+</script> 

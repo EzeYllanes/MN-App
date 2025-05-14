@@ -1,0 +1,50 @@
+<h5 id="tarjetas-anchor">Tarjetas</h5>
+{% if tipo_sel or tarjeta_sel %}
+<nav aria-label="breadcrumb" class="mb-2">
+  <ol class="breadcrumb bg-dark text-light px-3 py-2 mb-2">
+    {% if tipo_sel %}<li class="breadcrumb-item text-light">{{ tipo_sel }}</li>{% endif %}
+    {% if tarjeta_sel %}<li class="breadcrumb-item text-light active" aria-current="page">{{ tarjeta_sel }}</li>{% endif %}
+  </ol>
+</nav>
+{% endif %}
+{% if tarjetas %}
+<ul class="list-group mb-2">
+  {% for tarjeta in tarjetas %}
+    <li class="list-group-item d-flex align-items-center gap-2 {% if tarjeta==tarjeta_sel %}active{% endif %}"
+        style="cursor:pointer;"
+        onclick="seleccionarTarjeta('{{ tipo_sel }}', '{{ tarjeta }}');">
+      <span class="flex-grow-1 text-reset {% if tarjeta==tarjeta_sel %}fw-bold{% endif %}">{{ tarjeta }}</span>
+      <button class="btn btn-outline-light btn-sm py-0 px-2" style="min-width:28px" onclick="event.stopPropagation(); moverTarjetaAjax('{{ tipo_sel }}', '{{ tarjeta }}', -1);" {% if loop.first %}disabled{% endif %} title="Subir">↑</button>
+      <button class="btn btn-outline-light btn-sm py-0 px-2" style="min-width:28px" onclick="event.stopPropagation(); moverTarjetaAjax('{{ tipo_sel }}', '{{ tarjeta }}', 1);" {% if loop.last %}disabled{% endif %} title="Bajar">↓</button>
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+  <div class="text-muted">Sin tarjetas</div>
+{% endif %}
+{% if tipo_sel %}
+<form method="post" action="/configuracion/agregar_tarjeta" class="d-flex gap-2 mb-2 align-items-end" onsubmit="return agregarTarjetaAjax(this);">
+  <input type="hidden" name="tipo" value="{{ tipo_sel }}">
+  <div class="w-100">
+    <label class="form-label mb-0">Nombre</label>
+    <input type="text" name="nueva_tarjeta" class="form-control form-control-sm" placeholder="Nueva tarjeta" required>
+  </div>
+  <button class="btn btn-success btn-sm" type="submit">Agregar</button>
+</form>
+{% if tarjeta_sel %}
+<form method="post" action="/configuracion/editar_tarjeta" class="d-flex gap-2 mb-2 align-items-end bg-secondary bg-opacity-10 p-2 rounded" onsubmit="return editarTarjetaAjax(this);">
+  <input type="hidden" name="tipo" value="{{ tipo_sel }}">
+  <input type="hidden" name="tarjeta_actual" value="{{ tarjeta_sel }}">
+  <div class="w-100">
+    <label class="form-label mb-0">Editar nombre</label>
+    <input type="text" name="tarjeta_nueva" class="form-control form-control-sm" value="{{ tarjeta_sel }}" required>
+  </div>
+  <button class="btn btn-warning btn-sm" type="submit">Editar</button>
+</form>
+<form method="post" action="/configuracion/eliminar_tarjeta" onsubmit="return eliminarTarjetaAjax(this);">
+  <input type="hidden" name="tipo" value="{{ tipo_sel }}">
+  <input type="hidden" name="tarjeta" value="{{ tarjeta_sel }}">
+  <button class="btn btn-danger btn-sm w-100" type="submit">Eliminar</button>
+</form>
+{% endif %}
+{% endif %} 
