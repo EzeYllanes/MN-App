@@ -602,8 +602,13 @@ def buscar():
     
     # Limpiar los nombres de productos
     def limpiar_nombre(nombre, medida):
+        print(f"\nProcesando nombre: {nombre}")
+        print(f"Medida a buscar: {medida}")
+        print(f"¿Es medida de carga?: {medida.endswith('C')}")
+        
         # Si la medida es de carga (termina en C), no la limpiamos
         if medida.endswith('C'):
+            print("Es medida de carga, manteniendo nombre original")
             return nombre
             
         # Crear variantes de la medida para buscar
@@ -619,17 +624,22 @@ def buscar():
             medida.replace('R', '-ZR'),
         ]
         
+        print(f"Variantes a buscar: {variantes}")
+        
         # Eliminar la medida y sus variantes del nombre
         nombre_limpio = nombre
         for variante in variantes:
             # No eliminar si es una medida de carga
             if not variante.endswith('C'):
                 nombre_limpio = nombre_limpio.replace(variante, '')
+                print(f"Reemplazando variante: {variante}")
+                print(f"Nombre después de reemplazo: {nombre_limpio}")
         
         # Limpiar espacios y guiones extra
         nombre_limpio = ' '.join(nombre_limpio.split())
         nombre_limpio = nombre_limpio.strip('- ')
         
+        print(f"Nombre final: {nombre_limpio}")
         return nombre_limpio
     
     # Aplicar la limpieza a los nombres
