@@ -63,6 +63,9 @@ def cargar_productos():
         # Descargar el archivo más reciente desde Google Drive
         descargar_excel_drive(CARPETA_DRIVE_ID, NOMBRE_EXCEL, NOMBRE_EXCEL)
         df = pd.read_excel(NOMBRE_EXCEL)
+        print("Columnas del Excel:", df.columns)
+        print("Primeras filas del Excel:\n", df.head())
+        print("Cantidad de filas:", len(df))
         return df
     except Exception as e:
         print(f"Error al cargar el archivo: {e}")
