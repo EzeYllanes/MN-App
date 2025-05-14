@@ -2,8 +2,7 @@ import os
 import io
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 import pickle
 
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
@@ -11,18 +10,8 @@ SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 # Inicializa el servicio de Google Drive
 
 def get_drive_service():
-    creds = None
-    if os.path.exists('token_drive.pickle'):
-        with open('token_drive.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open('token_drive.pickle', 'wb') as token:
-            pickle.dump(creds, token)
+    creds = service_account.Credentials.from_service_account_file(
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'], scopes=SCOPES)
     return build('drive', 'v3', credentials=creds)
 
 # Descarga el archivo Excel más reciente con el nombre dado de la carpeta indicada
