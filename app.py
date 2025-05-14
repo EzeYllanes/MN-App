@@ -599,7 +599,42 @@ def buscar():
     resultados['Precio costo'] = pd.to_numeric(resultados['Precio costo'], errors='coerce')
     resultados = resultados[(resultados['Precio costo'].notna()) & (resultados['Precio costo'] > 0)]
     resultados = resultados.sort_values('Precio')
+    
+    # Limpiar los nombres de productos
+    def limpiar_nombre(nombre, medida):
+        # Si la medida es de carga (termina en C), no la limpiamos
+        if medida.endswith('C'):
+            return nombre
+            
+        # Crear variantes de la medida para buscar
+        variantes = [
+            medida,
+            medida.replace(' ', ''),
+            medida.replace(' ', '-'),
+            medida.replace('/', ''),
+            medida.replace('/', '-'),
+            # Agregar variantes con ZR
+            medida.replace('R', 'ZR'),
+            medida.replace('R', ' ZR'),
+            medida.replace('R', '-ZR'),
+        ]
+        
+        # Eliminar la medida y sus variantes del nombre
+        nombre_limpio = nombre
+        for variante in variantes:
+            nombre_limpio = nombre_limpio.replace(variante, '')
+        
+        # Limpiar espacios y guiones extra
+        nombre_limpio = ' '.join(nombre_limpio.split())
+        nombre_limpio = nombre_limpio.strip('- ')
+        
+        return nombre_limpio
+    
+    # Aplicar la limpieza a los nombres
+    resultados['Nombre'] = resultados['Nombre'].apply(lambda x: limpiar_nombre(x, medida))
+    
     productos = resultados[['Nombre', 'Precio']].to_dict(orient='records')
+    
     # Generar mensaje con el mismo formato que la app de escritorio
     if productos:
         mensaje = f"En {medida} tenemos en promoción lo que es:\n"
