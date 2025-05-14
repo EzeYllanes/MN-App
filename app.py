@@ -60,9 +60,18 @@ NOMBRE_EXCEL = 'productos_actualizados.xlsx'
 
 def cargar_productos():
     try:
-        # Descargar el archivo más reciente desde Google Drive
+        # Intentar descargar el archivo (solo se descargará si hay una versión más nueva)
         descargar_excel_drive(CARPETA_DRIVE_ID, NOMBRE_EXCEL, NOMBRE_EXCEL)
+        
+        # Cargar el archivo Excel
         df = pd.read_excel(NOMBRE_EXCEL)
+        
+        # Verificar que el DataFrame tenga las columnas necesarias
+        columnas_requeridas = ['Nombre', 'Categorías', 'Stock', 'Precio costo', 'Precio']
+        for col in columnas_requeridas:
+            if col not in df.columns:
+                raise Exception(f"El archivo Excel no contiene la columna requerida: {col}")
+        
         print("Columnas del Excel:", df.columns)
         print("Primeras filas del Excel:\n", df.head())
         print("Cantidad de filas:", len(df))
