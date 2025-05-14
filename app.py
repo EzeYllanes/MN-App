@@ -622,7 +622,9 @@ def buscar():
         # Eliminar la medida y sus variantes del nombre
         nombre_limpio = nombre
         for variante in variantes:
-            nombre_limpio = nombre_limpio.replace(variante, '')
+            # No eliminar si es una medida de carga
+            if not variante.endswith('C'):
+                nombre_limpio = nombre_limpio.replace(variante, '')
         
         # Limpiar espacios y guiones extra
         nombre_limpio = ' '.join(nombre_limpio.split())
