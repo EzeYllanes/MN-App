@@ -1,0 +1,32 @@
+<h5 id="tipos-anchor">Tipos</h5>
+<div class="list-group">
+    {% for tipo in tipos %}
+    <a href="#" class="list-group-item list-group-item-action {% if tipo == tipo_sel %}active{% endif %}"
+       onclick="cargarTarjetas('{{ tipo }}')">
+        {{ tipo }}
+        <div class="float-end">
+            <button class="btn btn-sm btn-outline-light" onclick="event.stopPropagation(); editarTipo('{{ tipo }}')">
+                <i class="bi bi-pencil"></i>
+            </button>
+            {% if tipos|length > 1 %}
+            <button class="btn btn-sm btn-outline-light" onclick="event.stopPropagation(); eliminarTipo('{{ tipo }}')">
+                <i class="bi bi-trash"></i>
+            </button>
+            {% endif %}
+            {% if not loop.first %}
+            <button class="btn btn-sm btn-outline-light" onclick="event.stopPropagation(); moverTipo('{{ tipo }}', -1)">
+                <i class="bi bi-arrow-up"></i>
+            </button>
+            {% endif %}
+            {% if not loop.last %}
+            <button class="btn btn-sm btn-outline-light" onclick="event.stopPropagation(); moverTipo('{{ tipo }}', 1)">
+                <i class="bi bi-arrow-down"></i>
+            </button>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+    <button class="btn btn-outline-primary mt-2" onclick="agregarTipo()">
+        <i class="bi bi-plus"></i> Agregar Tipo
+    </button>
+</div> 
