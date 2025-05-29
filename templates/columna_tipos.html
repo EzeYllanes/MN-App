@@ -2,7 +2,7 @@
 <div class="list-group">
     {% for tipo in tipos %}
     <a href="#" class="list-group-item list-group-item-action {% if tipo == tipo_sel %}active{% endif %}"
-       onclick="cargarTarjetas('{{ tipo }}')">
+       onclick="seleccionarTipo('{{ tipo }}')">
         {{ tipo }}
         <div class="float-end">
             <button class="btn btn-sm btn-outline-light" onclick="event.stopPropagation(); editarTipo('{{ tipo }}')">
