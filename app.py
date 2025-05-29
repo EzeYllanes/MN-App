@@ -575,87 +575,117 @@ def mover_plan():
 
 @app.route('/buscar', methods=['POST'])
 def buscar():
-    medida = request.form.get('medida', '').strip()
-    if not medida:
-        flash('Por favor ingrese una medida', 'warning')
-        return redirect(url_for('index'))
-    df = cargar_productos()
-    if df is None:
-        flash('No se pudo cargar el archivo de productos', 'danger')
-        return redirect(url_for('index'))
-    medida = medida.upper()
-    patrones = [
-        medida.replace('/', '').replace(' ', ''),
-        medida.replace('/', '-'),
-        medida
-    ]
-    resultados = pd.DataFrame()
-    for patron in patrones:
-        mask_nombre = df['Nombre'].str.contains(patron, case=False, na=False)
-        mask_categoria = df['Categorías'].str.contains(patron, case=False, na=False)
-        resultados = pd.concat([resultados, df[mask_nombre | mask_categoria]])
-    resultados = resultados.drop_duplicates()
-    resultados = resultados[resultados['Stock'] > 0]
-    resultados['Precio costo'] = pd.to_numeric(resultados['Precio costo'], errors='coerce')
-    resultados = resultados[(resultados['Precio costo'].notna()) & (resultados['Precio costo'] > 0)]
-    resultados = resultados.sort_values('Precio')
-    
-    # Limpiar los nombres de productos
-    def limpiar_nombre(nombre, medida):
-        print(f"\nProcesando nombre: {nombre}")
-        print(f"Medida a buscar: {medida}")
-        
-        # Verificar si el nombre contiene una medida de carga
-        es_carga = 'C' in nombre and any(f"{medida.replace(' ', '')}C" in nombre.replace(' ', '') for medida in [medida, medida.replace('/', '')])
-        print(f"¿Es medida de carga?: {es_carga}")
-        
-        # Si es medida de carga, mantener la medida en el nombre
-        if es_carga:
-            print("Es medida de carga, manteniendo nombre original")
-            return nombre
+    try:
+        medida = request.form.get('medida', '').strip()
+        if not medida:
+            flash('Por favor ingrese una medida', 'warning')
+            return redirect(url_for('index'))
             
-        # Crear variantes de la medida para buscar (sin incluir la C)
-        variantes = [
-            medida,
-            medida.replace(' ', ''),
-            medida.replace(' ', '-'),
-            medida.replace('/', ''),
+        df = cargar_productos()
+        if df is None:
+            flash('No se pudo cargar el archivo de productos', 'danger')
+            return redirect(url_for('index'))
+            
+        medida = medida.upper()
+        patrones = [
+            medida.replace('/', '').replace(' ', ''),
             medida.replace('/', '-'),
-            # Agregar variantes con ZR
-            medida.replace('R', 'ZR'),
-            medida.replace('R', ' ZR'),
-            medida.replace('R', '-ZR'),
+            medida
         ]
         
-        print(f"Variantes a buscar: {variantes}")
+        resultados = pd.DataFrame()
+        for patron in patrones:
+            mask_nombre = df['Nombre'].str.contains(patron, case=False, na=False)
+            mask_categoria = df['Categorías'].str.contains(patron, case=False, na=False)
+            resultados = pd.concat([resultados, df[mask_nombre | mask_categoria]])
+            
+        resultados = resultados.drop_duplicates()
+        resultados = resultados[resultados['Stock'] > 0]
         
-        # Eliminar la medida y sus variantes del nombre
-        nombre_limpio = nombre
-        for variante in variantes:
-            nombre_limpio = nombre_limpio.replace(variante, '')
-            print(f"Reemplazando variante: {variante}")
-            print(f"Nombre después de reemplazo: {nombre_limpio}")
+        # Convertir precios a numérico de manera segura
+        resultados['Precio'] = pd.to_numeric(resultados['Precio'], errors='coerce')
+        resultados['Precio costo'] = pd.to_numeric(resultados['Precio costo'], errors='coerce')
         
-        # Limpiar espacios y guiones extra
-        nombre_limpio = ' '.join(nombre_limpio.split())
-        nombre_limpio = nombre_limpio.strip('- ')
+        # Filtrar productos con precios válidos
+        resultados = resultados[
+            (resultados['Precio'].notna()) & 
+            (resultados['Precio'] > 0) & 
+            (resultados['Precio costo'].notna()) & 
+            (resultados['Precio costo'] > 0)
+        ]
         
-        print(f"Nombre final: {nombre_limpio}")
-        return nombre_limpio
-    
-    # Aplicar la limpieza a los nombres
-    resultados['Nombre'] = resultados['Nombre'].apply(lambda x: limpiar_nombre(x, medida))
-    
-    productos = resultados[['Nombre', 'Precio']].to_dict(orient='records')
-    
-    # Generar mensaje con el mismo formato que la app de escritorio
-    if productos:
-        mensaje = f"En {medida} tenemos en promoción lo que es:\n"
-        for p in productos:
-            mensaje += f"{p['Nombre']} en ${p['Precio']:.0f}\n"
-    else:
-        mensaje = "No se encontraron productos para esa medida."
-    return render_template('index.html', medida=medida, productos=productos, mensaje=mensaje)
+        resultados = resultados.sort_values('Precio')
+        
+        # Limpiar los nombres de productos
+        def limpiar_nombre(nombre, medida):
+            try:
+                if not isinstance(nombre, str):
+                    return str(nombre)
+                    
+                # Verificar si el nombre contiene una medida de carga
+                es_carga = 'C' in nombre and any(f"{medida.replace(' ', '')}C" in nombre.replace(' ', '') for medida in [medida, medida.replace('/', '')])
+                
+                # Si es medida de carga, mantener la medida en el nombre
+                if es_carga:
+                    return nombre
+                    
+                # Crear variantes de la medida para buscar
+                variantes = [
+                    medida,
+                    medida.replace(' ', ''),
+                    medida.replace(' ', '-'),
+                    medida.replace('/', ''),
+                    medida.replace('/', '-'),
+                    medida.replace('R', 'ZR'),
+                    medida.replace('R', ' ZR'),
+                    medida.replace('R', '-ZR'),
+                ]
+                
+                # Eliminar la medida y sus variantes del nombre
+                nombre_limpio = nombre
+                for variante in variantes:
+                    nombre_limpio = nombre_limpio.replace(variante, '')
+                
+                # Limpiar espacios y guiones extra
+                nombre_limpio = ' '.join(nombre_limpio.split())
+                nombre_limpio = nombre_limpio.strip('- ')
+                
+                return nombre_limpio
+            except Exception as e:
+                print(f"Error al limpiar nombre '{nombre}': {str(e)}")
+                return nombre
+        
+        # Aplicar la limpieza a los nombres
+        resultados['Nombre'] = resultados['Nombre'].apply(lambda x: limpiar_nombre(x, medida))
+        
+        # Convertir a diccionario asegurando que los precios sean números
+        productos = []
+        for _, row in resultados.iterrows():
+            try:
+                precio = float(row['Precio'])
+                if precio > 0:
+                    productos.append({
+                        'Nombre': str(row['Nombre']),
+                        'Precio': precio
+                    })
+            except (ValueError, TypeError) as e:
+                print(f"Error al procesar precio para {row['Nombre']}: {str(e)}")
+                continue
+        
+        # Generar mensaje con el mismo formato que la app de escritorio
+        if productos:
+            mensaje = f"En {medida} tenemos en promoción lo que es:\n"
+            for p in productos:
+                mensaje += f"{p['Nombre']} en ${p['Precio']:.0f}\n"
+        else:
+            mensaje = "No se encontraron productos para esa medida."
+            
+        return render_template('index.html', medida=medida, productos=productos, mensaje=mensaje)
+        
+    except Exception as e:
+        print(f"Error en la búsqueda: {str(e)}")
+        flash('Ocurrió un error al realizar la búsqueda. Por favor intente nuevamente.', 'danger')
+        return redirect(url_for('index'))
 
 if __name__ == '__main__':
     from werkzeug.security import generate_password_hash
