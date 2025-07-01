@@ -25,19 +25,19 @@
                             "cuotas": "3",
                             "nombre": "Plan Z",
                             "usar_nombre": true,
-                            "interes": 12.25
+                            "interes": 15
                         },
                         {
                             "cuotas": "5",
                             "nombre": "",
                             "usar_nombre": false,
-                            "interes": 18.67
+                            "interes": 23.3
                         },
                         {
                             "cuotas": "8",
                             "nombre": "",
                             "usar_nombre": false,
-                            "interes": 27.85
+                            "interes": 34.5
                         }
                     ]
                 }
