@@ -1,0 +1,24 @@
+# Base de datos SQLite
+instance/
+*.db
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# Archivos de configuración local
+.env
+.env.local
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db 
