@@ -703,17 +703,29 @@ def buscar():
         flash('Ocurrió un error al realizar la búsqueda. Por favor intente nuevamente.', 'danger')
         return redirect(url_for('index'))
 
+def inicializar_base_datos():
+    """Inicializa la base de datos y crea el usuario admin si no existe"""
+    try:
+        with app.app_context():
+            db.create_all()
+            # Crear usuario admin si no existe
+            if not Usuario.query.filter_by(username='admin').first():
+                from werkzeug.security import generate_password_hash
+                admin = Usuario(
+                    username='admin',
+                    password_hash=generate_password_hash('admin123'),  # Cambia esto en producción
+                    es_admin=True
+                )
+                db.session.add(admin)
+                db.session.commit()
+                print("✅ Usuario admin creado exitosamente")
+            else:
+                print("✅ Usuario admin ya existe")
+    except Exception as e:
+        print(f"❌ Error al inicializar la base de datos: {e}")
+
+# Inicializar la base de datos al importar el módulo
+inicializar_base_datos()
+
 if __name__ == '__main__':
-    from werkzeug.security import generate_password_hash
-    with app.app_context():
-        db.create_all()
-        # Crear usuario admin si no existe
-        if not Usuario.query.filter_by(username='admin').first():
-            admin = Usuario(
-                username='admin',
-                password_hash=generate_password_hash('admin123'),  # Cambia esto en producción
-                es_admin=True
-            )
-            db.session.add(admin)
-            db.session.commit()
     app.run(debug=True) 
