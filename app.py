@@ -86,40 +86,51 @@ def cargar_configuracion():
         if config:
             return json.loads(config.config_json)
         else:
-            # Configuración por defecto
-            config_default = {
-                "tipos_financiacion": {
-                    "MN": {
-                        "nombre": "MN",
-                        "tarjetas": {
-                            "Tarjeta Bancaria": {
-                                "planes": [
-                                    {"cuotas": "3", "nombre": "", "usar_nombre": False, "interes": 10.24},
-                                    {"cuotas": "6", "nombre": "", "usar_nombre": False, "interes": 18.60}
-                                ]
-                            },
-                            "Naranja X": {
-                                "planes": [
-                                    {"cuotas": "3", "nombre": "Plan Z", "usar_nombre": True, "interes": 12.25},
-                                    {"cuotas": "5", "nombre": "", "usar_nombre": False, "interes": 18.67},
-                                    {"cuotas": "8", "nombre": "", "usar_nombre": False, "interes": 27.85}
-                                ]
+            # Intentar cargar desde el archivo JSON
+            try:
+                with open('config_financiacion.json', 'r', encoding='utf-8') as f:
+                    config_json = json.load(f)
+                # Guardar en la base de datos para futuras consultas
+                nueva_config = Configuracion(config_json=json.dumps(config_json))
+                db.session.add(nueva_config)
+                db.session.commit()
+                return config_json
+            except FileNotFoundError:
+                # Configuración por defecto si no existe el archivo JSON
+                config_default = {
+                    "tipos_financiacion": {
+                        "MN": {
+                            "nombre": "MN",
+                            "tarjetas": {
+                                "Tarjeta Bancaria": {
+                                    "planes": [
+                                        {"cuotas": "3", "nombre": "", "usar_nombre": False, "interes": 10.24},
+                                        {"cuotas": "6", "nombre": "", "usar_nombre": False, "interes": 18.60}
+                                    ]
+                                },
+                                "Naranja X": {
+                                    "planes": [
+                                        {"cuotas": "3", "nombre": "Plan Z", "usar_nombre": True, "interes": 12.25},
+                                        {"cuotas": "5", "nombre": "", "usar_nombre": False, "interes": 18.67},
+                                        {"cuotas": "8", "nombre": "", "usar_nombre": False, "interes": 27.85}
+                                    ]
+                                }
                             }
                         }
                     }
                 }
-            }
-            # Guardar configuración por defecto
-            nueva_config = Configuracion(config_json=json.dumps(config_default))
-            db.session.add(nueva_config)
-            db.session.commit()
-            return config_default
+                # Guardar configuración por defecto
+                nueva_config = Configuracion(config_json=json.dumps(config_default))
+                db.session.add(nueva_config)
+                db.session.commit()
+                return config_default
     except Exception as e:
         print(f"Error al cargar la configuración: {e}")
         return {"tipos_financiacion": {}}
 
 def guardar_configuracion(config):
     try:
+        # Guardar en la base de datos
         config_obj = Configuracion.query.first()
         if config_obj:
             config_obj.config_json = json.dumps(config)
@@ -127,6 +138,11 @@ def guardar_configuracion(config):
             config_obj = Configuracion(config_json=json.dumps(config))
             db.session.add(config_obj)
         db.session.commit()
+        
+        # Guardar también en el archivo JSON
+        with open('config_financiacion.json', 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=4, ensure_ascii=False)
+            
     except Exception as e:
         print(f"Error al guardar la configuración: {e}")
         db.session.rollback()
